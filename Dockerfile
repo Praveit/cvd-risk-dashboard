@@ -1,7 +1,6 @@
-# Dockerfile for Hugging Face Spaces
+# Dockerfile for Render
 # Multi-stage build: Python API + Next.js Frontend
-# Runs on single port 7860 via nginx reverse proxy
-# Target: https://huggingface.co/spaces/Praveit/praveit-cvd-risk
+# Runs on single port via nginx reverse proxy
 
 # ============================================
 # Stage 1: Build Next.js Frontend
@@ -28,17 +27,15 @@ RUN npm run build
 # ============================================
 FROM python:3.11-slim AS python-base
 
-# Install system dependencies: nginx, supervisord, node (for runtime), curl (health checks)
+# Install system dependencies: nginx, supervisord, curl (health checks)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
-    nodejs \
-    npm \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user (HF Spaces requirement)
+# Create non-root user
 RUN useradd -m -u 1000 user
 USER user
 WORKDIR /home/user/app
@@ -65,8 +62,10 @@ COPY --chown=user api/ ./api/
 
 # Copy built Next.js frontend (standalone output)
 COPY --from=frontend-builder --chown=user /app/frontend/.next/standalone ./frontend/
-COPY --from=frontend-builder --chown=user /app/frontend/public ./frontend/public/
 COPY --from=frontend-builder --chown=user /app/frontend/.next/static ./frontend/.next/static/
+
+# Copy public folder from SOURCE (not from standalone - Next.js doesn't include it there)
+COPY --chown=user clinical-dashboard/public ./frontend/public/
 
 # Copy nginx and supervisord configs
 COPY --chown=user nginx.conf /etc/nginx/nginx.conf
@@ -79,7 +78,7 @@ RUN mkdir -p /var/cache/nginx /var/run/nginx /var/log/nginx \
     && chmod 755 /var/run/nginx
 USER user
 
-# Expose port 7860 (HF Spaces requirement)
+# Expose port (Render assigns via $PORT env var)
 EXPOSE 7860
 
 # Health check

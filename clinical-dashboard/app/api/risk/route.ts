@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 
-// Local FastAPI endpoint (via nginx reverse proxy on same container)
+// Local FastAPI endpoint (internal nginx proxy forwards /api/* to FastAPI on port 8000)
 const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000'
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const patientData = await request.json()
 
-    const response = await fetch(`${FASTAPI_URL}/api/risk`, {
+    const response = await fetch(`${FASTAPI_URL}/api/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patientData),

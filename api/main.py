@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict
 import numpy as np
 
-from clinical_risk import calculate_clinical_risk, compute_shap_importance
+from clinical_risk import calculate_clinical_risk, compute_shap_importance, compute_all_risk_metrics
 
 
 app = FastAPI(
@@ -62,24 +62,14 @@ def predict_risk(patient: PatientData):
         # Calculate risk using clinical formula
         risk_10yr, feature_contributions = calculate_clinical_risk(patient_dict)
         
-        # Time-horizon risk projections
-        risk_baseline = risk_10yr * 0.15
-        risk_2yr = risk_10yr * 0.35
-        risk_5yr = risk_10yr * 0.70
-        
-        risk_baseline = float(np.clip(risk_baseline, 0.01, 0.50))
-        risk_2yr = float(np.clip(risk_2yr, 0.05, 0.60))
-        risk_5yr = float(np.clip(risk_5yr, 0.10, 0.70))
-        risk_10yr = float(np.clip(risk_10yr, 0.15, 0.75))
+        # Compute all risk time horizons
+        risk_metrics = compute_all_risk_metrics(risk_10yr)
         
         # Compute SHAP-like feature importance
         shap_importance = compute_shap_importance(feature_contributions, risk_10yr)
         
         return {
-            "immediateRisk": risk_baseline,
-            "risk2Year": risk_2yr,
-            "risk5Year": risk_5yr,
-            "risk10Year": risk_10yr,
+            **risk_metrics,
             "shapImportance": shap_importance
         }
     except Exception as e:
