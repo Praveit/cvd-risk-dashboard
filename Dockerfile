@@ -27,28 +27,28 @@ RUN npm run build
 # ============================================
 FROM python:3.11-slim AS python-base
 
-# Install system dependencies: nginx, supervisord, curl (health checks)
+# Install system dependencies: nginx, supervisord, nodejs, npm, curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
+    nodejs \
+    npm \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN useradd -m -u 1000 user
-USER user
-WORKDIR /home/user/app
+# Create required directories
+RUN mkdir -p /var/cache/nginx /var/run/nginx /var/log/nginx /var/log/supervisor /var/run/supervisor
 
 # ============================================
-# Stage 3: Install Python Dependencies
+# Stage 3: Install Python Dependencies (global, not user)
 # ============================================
 FROM python-base AS python-deps
 
-# Copy Python requirements from api/
-COPY --chown=user api/requirements.txt ./requirements.txt
+# Copy Python requirements
+COPY api/requirements.txt ./requirements.txt
 
-# Install Python dependencies
+# Install Python dependencies globally
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r ./requirements.txt
 
@@ -57,26 +57,25 @@ RUN pip install --no-cache-dir --upgrade pip \
 # ============================================
 FROM python-deps AS runtime
 
+# Create non-root user
+RUN useradd -m -u 1000 user
+
 # Copy Python API code
-COPY --chown=user api/ ./api/
+COPY --chown=user api/ /home/user/app/api/
 
 # Copy built Next.js frontend (standalone output)
-COPY --from=frontend-builder --chown=user /app/frontend/.next/standalone ./frontend/
-COPY --from=frontend-builder --chown=user /app/frontend/.next/static ./frontend/.next/static/
-
-# Copy public folder from SOURCE (not from standalone - Next.js doesn't include it there)
-COPY --chown=user clinical-dashboard/public ./frontend/public/
+COPY --from=frontend-builder --chown=user /app/frontend/.next/standalone /home/user/app/frontend/
+COPY --from=frontend-builder --chown=user /app/frontend/.next/static /home/user/app/frontend/.next/static/
+COPY --from=frontend-builder --chown=user /app/frontend/public /home/user/app/frontend/public/
 
 # Copy nginx and supervisord configs
-COPY --chown=user nginx.conf /etc/nginx/nginx.conf
-COPY --chown=user supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Create required directories with proper permissions
-USER root
-RUN mkdir -p /var/cache/nginx /var/run/nginx /var/log/nginx \
-    /var/log/supervisor \
-    && chown -R user:user /var/cache/nginx /var/run/nginx /var/log/nginx /var/log/supervisor \
-    && chmod 755 /var/run/nginx /var/log/supervisor
+# Fix permissions
+RUN chown -R user:user /home/user/app /var/cache/nginx /var/run/nginx /var/log/nginx /var/log/supervisor /var/run/supervisor
+
+WORKDIR /home/user/app
 USER user
 
 # Expose port (Render assigns via $PORT env var)
