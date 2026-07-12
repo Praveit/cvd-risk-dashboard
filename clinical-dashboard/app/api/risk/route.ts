@@ -7,13 +7,19 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     const patientData = await request.json()
 
-    console.log('[API] Forwarding to FastAPI:', FASTAPI_URL)
+    console.log('[API] Forwarding to FastAPI:', FASTAPI_URL, patientData)
     
-    const response = await fetch(`${FASTAPI_URL}/api/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patientData),
-    })
+    let response
+    try {
+      response = await fetch(`${FASTAPI_URL}/api/predict`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patientData),
+      })
+    } catch (fetchError) {
+      console.error('[API] Fetch failed - FastAPI may not be running:', fetchError)
+      return NextResponse.json({ error: 'Cannot connect to risk service. FastAPI may not be running.' }, { status: 503 })
+    }
 
     console.log('[API] FastAPI response status:', response.status)
     
