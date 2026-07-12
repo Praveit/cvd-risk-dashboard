@@ -1,7 +1,7 @@
 'use client'
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart as AreaChartType } from 'recharts'
-import { AlertTriangle, Heart, TrendingUp, Shield, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertTriangle, AlertCircle, CheckCircle2 } from 'lucide-react'
 
 interface RiskResult {
   immediateRisk: number
@@ -36,27 +36,26 @@ export default function RiskDisplay({ result }: RiskDisplayProps) {
   let riskColor = 'text-green-600'
   let riskBg = 'bg-green-50'
   let riskBorder = 'border-green-200'
-  let riskIcon = Shield
 
   if (risk10YearPct >= 20) {
     riskCategory = 'High'
     riskColor = 'text-red-600'
     riskBg = 'bg-red-50'
     riskBorder = 'border-red-200'
-    riskIcon = AlertCircle
   } else if (risk10YearPct >= 10) {
     riskCategory = 'Moderate'
     riskColor = 'text-amber-600'
     riskBg = 'bg-amber-50'
     riskBorder = 'border-amber-200'
-    riskIcon = AlertTriangle
   } else {
     riskCategory = 'Low'
     riskColor = 'text-green-600'
     riskBg = 'bg-green-50'
     riskBorder = 'border-green-200'
-    riskIcon = CheckCircle2
   }
+
+  // Risk icon based on category
+  const RiskIcon = risk10YearPct >= 20 ? AlertCircle : risk10YearPct >= 10 ? AlertTriangle : CheckCircle2
 
   // Get top risk factors from SHAP
   const shapImportance = result.shapImportance || []
@@ -86,7 +85,7 @@ export default function RiskDisplay({ result }: RiskDisplayProps) {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       {/* Risk Category Header */}
       <div className={`flex items-center gap-3 p-4 rounded-lg ${riskBg} border ${riskBorder} mb-6`}>
-        <riskIcon className={`h-6 w-6 ${riskColor} flex-shrink-0`} />
+        <RiskIcon className={`h-6 w-6 ${riskColor} flex-shrink-0`} />
         <div>
           <p className="text-sm text-gray-500">10-Year CVD Risk Category</p>
           <p className={`text-2xl font-bold ${riskColor}`}>{riskCategory} Risk ({risk10YearPct.toFixed(1)}%)</p>
