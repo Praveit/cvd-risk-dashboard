@@ -15,6 +15,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patientData),
+        // Add timeout to prevent hanging
+        signal: AbortSignal.timeout(10000)
       })
     } catch (fetchError) {
       console.error('[API] Fetch failed - FastAPI may not be running:', fetchError)
@@ -24,7 +26,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     console.log('[API] FastAPI response status:', response.status, response.statusText)
     
     const text = await response.text()
-    console.log('[API] FastAPI raw response:', text)
+    console.log('[API] FastAPI raw response (length:', text.length, '):', text)
     
     if (!response.ok) {
       console.error('[API] FastAPI error:', text)
@@ -44,6 +46,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: 'Invalid response from risk service: ' + text }, { status: 500 })
     }
     
+    console.log('[API] Parsed result:', JSON.stringify(result))
     return NextResponse.json(result)
   } catch (error) {
     console.error('[API] Server error:', error)
