@@ -71,11 +71,12 @@ COPY --chown=user clinical-dashboard/public ./frontend/public/
 COPY --chown=user nginx.conf /etc/nginx/nginx.conf
 COPY --chown=user supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Create nginx dirs with proper permissions
+# Create required directories with proper permissions
 USER root
 RUN mkdir -p /var/cache/nginx /var/run/nginx /var/log/nginx \
-    && chown -R user:user /var/cache/nginx /var/run/nginx /var/log/nginx \
-    && chmod 755 /var/run/nginx
+    /var/log/supervisor \
+    && chown -R user:user /var/cache/nginx /var/run/nginx /var/log/nginx /var/log/supervisor \
+    && chmod 755 /var/run/nginx /var/log/supervisor
 USER user
 
 # Expose port (Render assigns via $PORT env var)
