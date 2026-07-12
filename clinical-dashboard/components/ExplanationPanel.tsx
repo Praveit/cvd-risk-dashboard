@@ -37,7 +37,9 @@ const featureDescriptions: Record<string, { risk: string; protective: string }> 
 }
 
 export default function ExplanationPanel({ shapImportance }: ExplanationPanelProps) {
-  if (!shapImportance || shapImportance.length === 0) {
+  const shapData = shapImportance || []
+  
+  if (!shapData || shapData.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center gap-2 mb-4">
@@ -49,7 +51,7 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
     )
   }
 
-  const chartData = shapImportance.map(item => ({
+  const chartData = shapData.map(item => ({
     feature: featureLabels[item.feature] || item.feature,
     value: item.value,
     rawFeature: item.feature
@@ -143,7 +145,7 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
       )}
 
       {/* Clinical Interpretation */}
-      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+<div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
         <h3 className="font-medium text-gray-900 mb-2">Clinical Interpretation</h3>
         <p className="text-sm text-gray-700">
           {topFactor && (

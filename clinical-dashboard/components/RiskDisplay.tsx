@@ -59,12 +59,13 @@ export default function RiskDisplay({ result }: RiskDisplayProps) {
   }
 
   // Get top risk factors from SHAP
-  const topRiskFactors = result.shapImportance
+  const shapImportance = result.shapImportance || []
+  const topRiskFactors = shapImportance
     .filter(f => f.value > 0)
     .sort((a, b) => b.value - a.value)
     .slice(0, 3)
 
-  const topProtectiveFactors = result.shapImportance
+  const topProtectiveFactors = shapImportance
     .filter(f => f.value < 0)
     .sort((a, b) => a.value - b.value)
     .slice(0, 2)
