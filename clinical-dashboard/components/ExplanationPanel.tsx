@@ -24,6 +24,18 @@ const featureLabels: Record<string, string> = {
   active: 'Physical Activity'
 }
 
+const featureDescriptions: Record<string, { risk: string; protective: string }> = {
+  ap_hi: { risk: 'Elevated systolic blood pressure significantly increases CVD risk', protective: 'Normal systolic blood pressure is protective' },
+  ap_lo: { risk: 'Elevated diastolic blood pressure increases CVD risk', protective: 'Normal diastolic blood pressure is protective' },
+  cholesterol: { risk: 'Elevated cholesterol contributes to atherosclerosis risk', protective: 'Normal cholesterol levels are protective' },
+  gluc: { risk: 'Elevated glucose indicates diabetes/prediabetes risk', protective: 'Normal glucose levels are protective' },
+  age: { risk: 'Advanced age is a non-modifiable risk factor', protective: 'Younger age is protective' },
+  weight: { risk: 'Excess weight increases cardiovascular strain', protective: 'Healthy weight is protective' },
+  smoke: { risk: 'Smoking is a major modifiable CVD risk factor', protective: 'Non-smoking status is protective' },
+  alco: { risk: 'Excessive alcohol consumption increases CVD risk', protective: 'Moderate/no alcohol is protective' },
+  active: { risk: 'Physical inactivity increases CVD risk', protective: 'Regular physical activity is protective' },
+}
+
 export default function ExplanationPanel({ shapImportance }: ExplanationPanelProps) {
   if (!shapImportance || shapImportance.length === 0) {
     return (
@@ -42,6 +54,13 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
     value: item.value,
     rawFeature: item.feature
   }))
+
+  // Separate risk factors (positive SHAP) and protective factors (negative SHAP)
+  const riskFactors = chartData.filter(d => d.value > 0)
+  const protectiveFactors = chartData.filter(d => d.value < 0)
+
+  // Get top contributing factor for clinical interpretation
+  const topFactor = chartData[0]
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -89,14 +108,52 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 className="font-medium text-blue-900 mb-2">Clinical Interpretation</h3>
-        <p className="text-sm text-blue-800">
-          {shapImportance[0]?.feature && (
+      {/* Risk Factors Section */}
+      {riskFactors.length > 0 && (
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h3 className="font-medium text-red-900 mb-2">Risk Factors (Increase CVD Risk)</h3>
+          <ul className="text-sm text-red-800 space-y-1">
+            {riskFactors.map((factor, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1.5" />
+                <strong>{featureLabels[factor.rawFeature] || factor.rawFeature}</strong>
+                <span className="text-gray-600">: {featureDescriptions[factor.rawFeature]?.risk || 'Increases CVD risk'}</span>
+                <span className="text-red-600 font-mono ml-auto">+{factor.value.toFixed(4)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Protective Factors Section */}
+      {protectiveFactors.length > 0 && (
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h3 className="font-medium text-blue-900 mb-2">Protective Factors (Decrease CVD Risk)</h3>
+          <ul className="text-sm text-blue-800 space-y-1">
+            {protectiveFactors.map((factor, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
+                <strong>{featureLabels[factor.rawFeature] || factor.rawFeature}</strong>
+                <span className="text-gray-600">: {featureDescriptions[factor.rawFeature]?.protective || 'Decreases CVD risk'}</span>
+                <span className="text-blue-600 font-mono ml-auto">{factor.value.toFixed(4)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Clinical Interpretation */}
+      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <h3 className="font-medium text-gray-900 mb-2">Clinical Interpretation</h3>
+        <p className="text-sm text-gray-700">
+          {topFactor && (
             <>
-              <strong>{featureLabels[shapImportance[0].feature] || shapImportance[0].feature}</strong> 
-              {' '}is the most significant contributor to this patient's CVD risk.
-              {shapImportance[0].value > 0 ? ' Recommend monitoring and lifestyle modifications.' : ' This factor is protective.'}
+              <strong>{featureLabels[topFactor.rawFeature] || topFactor.rawFeature}</strong> 
+              {' '}is the most significant contributor to this patient's CVD risk 
+              ({topFactor.value > 0 ? 'increasing' : 'decreasing'} risk by {Math.abs(topFactor.value).toFixed(4)} SHAP units).
+              {topFactor.value > 0 
+                ? ' Consider addressing this modifiable risk factor through lifestyle changes or medical management.' 
+                : ' This protective factor should be maintained.'}
             </>
           )}
         </p>

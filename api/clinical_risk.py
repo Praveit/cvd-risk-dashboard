@@ -156,7 +156,13 @@ def calculate_clinical_risk(patient: Dict) -> Tuple[float, Dict[str, float]]:
 
 
 def compute_shap_importance(feature_contributions: Dict[str, float], risk_score: float) -> List[Dict]:
-    """Convert feature contributions to SHAP-like values that sum to risk deviation from baseline."""
+    """Convert feature contributions to SHAP-like values that sum to risk deviation from baseline.
+    
+    SHAP values represent the actual contribution direction:
+    - Positive value = increases risk (red)
+    - Negative value = decreases risk (blue/protective)
+    They sum to risk_deviation from baseline.
+    """
     baseline_risk = 0.15  # approximate baseline
     risk_deviation = risk_score - baseline_risk
 
@@ -164,16 +170,24 @@ def compute_shap_importance(feature_contributions: Dict[str, float], risk_score:
     if total_abs_contrib == 0:
         return [{'feature': k, 'value': 0.0} for k in feature_contributions.keys()]
 
-    # Normalize contributions to match risk deviation
+    # Scale contributions proportionally to match risk_deviation
+    # Preserve the SIGN of each contribution (positive = risk increase, negative = protective)
     shap_values = []
     for feature, contrib in feature_contributions.items():
-        # Scale contribution to match the actual risk deviation
-        shap_val = (contrib / total_abs_contrib) * risk_deviation if total_abs_contrib > 0 else 0
+        if total_abs_contrib > 0:
+            # Scale each contribution proportionally, preserving its sign
+            shap_val = (contrib / total_abs_contrib) * risk_deviation
+        else:
+            shap_val = 0.0
         shap_values.append({'feature': feature, 'value': float(shap_val)})
 
-    # Sort by absolute value descending
+    # Sort by absolute value descending, but include all features with non-zero contribution
     shap_values.sort(key=lambda x: abs(x['value']), reverse=True)
-    return shap_values[:6]  # Top 6 features
+    
+    # Return top features, but ensure we include at least some protective factors
+    # Filter out exactly-zero values only
+    non_zero = [s for s in shap_values if abs(s['value']) > 1e-10]
+    return non_zero[:10]  # Return up to 10 features
 
 
 def compute_all_risk_metrics(risk_10yr: float) -> Dict[str, float]:
