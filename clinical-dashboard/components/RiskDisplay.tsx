@@ -1,7 +1,7 @@
 'use client'
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart as AreaChartType } from 'recharts'
-import { AlertTriangle, AlertCircle, CheckCircle2, Heart, TrendingUp } from 'lucide-react'
+import { AlertTriangle, AlertCircle, CheckCircle2, Heart, TrendingUp, Shield } from 'lucide-react'
 
 interface RiskResult {
   immediateRisk: number
@@ -75,7 +75,7 @@ export default function RiskDisplay({ result }: RiskDisplayProps) {
     cholesterol: 'Cholesterol',
     gluc: 'Glucose',
     age: 'Age',
-    weight: 'Weight',
+    weight: 'BMI',
     smoke: 'Smoking',
     alco: 'Alcohol',
     active: 'Physical Activity'

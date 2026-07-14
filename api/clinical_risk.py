@@ -135,12 +135,13 @@ def calculate_clinical_risk(patient: Dict) -> Tuple[float, Dict[str, float]]:
     else:
         feature_contributions['alco'] = 0
 
-    # Physical activity (protective)
-    if not active:
-        points += 2
-        feature_contributions['active'] = 2
+    # Physical activity - protective when active, risk when inactive
+    if active == 1:
+        points -= 2
+        feature_contributions['active'] = -2  # Protective (negative = lowers risk)
     else:
-        feature_contributions['active'] = -1  # protective
+        points += 2
+        feature_contributions['active'] = 2   # Risk factor (positive = increases risk)
 
     # Gender (protective for females)
     if gender == 2:  # Female
@@ -156,38 +157,35 @@ def calculate_clinical_risk(patient: Dict) -> Tuple[float, Dict[str, float]]:
 
 
 def compute_shap_importance(feature_contributions: Dict[str, float], risk_score: float) -> List[Dict]:
-    """Convert feature contributions to SHAP-like values that sum to risk deviation from baseline.
+    """Convert feature contributions to SHAP-like values.
     
-    SHAP values represent the actual contribution direction:
-    - Positive value = increases risk (red)
-    - Negative value = decreases risk (blue/protective)
-    They sum to risk_deviation from baseline.
+    SHAP values represent each feature's contribution to the risk prediction:
+    - Positive value = increases risk (risk factor)
+    - Negative value = decreases risk (protective factor)
+    The sum of SHAP values approximates the risk score.
     """
-    baseline_risk = 0.15  # approximate baseline
-    risk_deviation = risk_score - baseline_risk
-
     total_abs_contrib = sum(abs(v) for v in feature_contributions.values())
     if total_abs_contrib == 0:
         return [{'feature': k, 'value': 0.0} for k in feature_contributions.keys()]
 
-    # Scale contributions proportionally to match risk_deviation
-    # Preserve the SIGN of each contribution (positive = risk increase, negative = protective)
+    # Scale contributions proportionally to the risk score
+    # Preserve the SIGN of each feature's clinical effect
+    # (positive contrib = risk factor, negative contrib = protective)
     shap_values = []
     for feature, contrib in feature_contributions.items():
         if total_abs_contrib > 0:
-            # Scale each contribution proportionally, preserving its sign
-            shap_val = (contrib / total_abs_contrib) * risk_deviation
+            # Scale proportionally, preserving clinical direction
+            shap_val = (contrib / total_abs_contrib) * risk_score
         else:
             shap_val = 0.0
         shap_values.append({'feature': feature, 'value': float(shap_val)})
 
-    # Sort by absolute value descending, but include all features with non-zero contribution
+    # Sort by absolute value descending
     shap_values.sort(key=lambda x: abs(x['value']), reverse=True)
     
-    # Return top features, but ensure we include at least some protective factors
     # Filter out exactly-zero values only
     non_zero = [s for s in shap_values if abs(s['value']) > 1e-10]
-    return non_zero[:10]  # Return up to 10 features
+    return non_zero[:10]
 
 
 def compute_all_risk_metrics(risk_10yr: float) -> Dict[str, float]:

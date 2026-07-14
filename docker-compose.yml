@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Python FastAPI backend
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    container_name: cvd-fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/home/user/app/api
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - cvd-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: cvd-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./clinical-dashboard:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - FASTAPI_URL=http://fastapi:8000
+      - NEXT_TELEMETRY_DISABLED=1
+    depends_on:
+      - fastapi
+    networks:
+      - cvd-network
+
+  # Nginx reverse proxy (single port 7860)
+  nginx:
+    image: nginx:alpine
+    container_name: cvd-nginx
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./nginx.local.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - fastapi
+      - frontend
+    networks:
+      - cvd-network
+
+networks:
+  cvd-network:
+    driver: bridge

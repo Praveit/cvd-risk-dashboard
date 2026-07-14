@@ -1,0 +1,22 @@
+# Dockerfile for Next.js Frontend (development)
+FROM node:20-alpine
+
+# Install dependencies for development
+RUN apk add --no-cache curl
+
+WORKDIR /app
+
+# Copy package files
+COPY clinical-dashboard/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY clinical-dashboard/ ./
+
+# Expose port
+EXPOSE 3000
+
+# Run in development mode with hot reload
+CMD ["npm", "run", "dev"]

@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict
 import numpy as np
 
-from clinical_risk import calculate_clinical_risk, compute_shap_importance, compute_all_risk_metrics
+from api.clinical_risk import calculate_clinical_risk, compute_shap_importance, compute_all_risk_metrics
 
 
 app = FastAPI(
@@ -53,7 +53,7 @@ class RiskResponse(BaseModel):
     shapImportance: List[ShapFeature]
 
 
-@app.post("/api/predict", response_model=RiskResponse)
+@app.post("/api/risk", response_model=RiskResponse)
 def predict_risk(patient: PatientData):
     """Calculate CVD risk and SHAP feature importance for a patient"""
     try:

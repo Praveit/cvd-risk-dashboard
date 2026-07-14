@@ -1,0 +1,13 @@
+# Dockerfile for Next.js only (local development)
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY clinical-dashboard/package*.json ./
+RUN npm ci
+
+COPY clinical-dashboard/ ./
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
