@@ -39,7 +39,7 @@ const initialPatient: PatientData = {
   active: 1
 }
 
-export default function PatientForm({ onResult }: { onResult: (result: RiskResult) => void }) {
+export default function PatientForm({ onResult }: { onResult: (result: RiskResult | null) => void }) {
   const [patient, setPatient] = useState<PatientData>(initialPatient)
   const [loading, setLoading] = useState(false)
 
