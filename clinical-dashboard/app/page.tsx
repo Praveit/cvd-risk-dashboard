@@ -97,6 +97,9 @@ export default function Home() {
           <p className="text-center text-sm text-gray-500">
             CVD Risk Assessment Tool — For Clinical Decision Support Only — Not a Medical Device
           </p>
+          <p className="text-center text-sm text-gray-400 mt-2">
+            Developed by Praveit Suhas 2023-2026
+          </p>
         </div>
       </footer>
     </div>
