@@ -88,7 +88,6 @@ RUN chown -R user:user /home/user/app /var/cache/nginx /var/run/nginx /var/log/n
 RUN touch /var/run/nginx/nginx.pid && chown user:user /var/run/nginx/nginx.pid
 
 WORKDIR /home/user/app
-USER user
 
 # Expose port (Render assigns via $PORT env var)
 EXPOSE 7860
@@ -98,4 +97,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:7860/health || exit 1
 
 # Start supervisord (manages nginx + FastAPI + Next.js)
+# Run as root so supervisord can manage child processes as different users
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
