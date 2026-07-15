@@ -95,8 +95,8 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
             />
             <Tooltip 
               formatter={(value: number) => [
-                `${value > 0 ? '+' : ''}${value.toFixed(4)}`,
-                'SHAP Value'
+                `${value > 0 ? '+' : ''}${(value * 100).toFixed(1)}%`,
+                'Risk Impact (%)'
               ]}
               labelFormatter={() => ''}
               contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
@@ -120,7 +120,7 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
                 <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1.5" />
                 <strong>{featureLabels[factor.rawFeature] || factor.rawFeature}</strong>
                 <span className="text-gray-600">: {featureDescriptions[factor.rawFeature]?.risk || 'Increases CVD risk'}</span>
-                <span className="text-red-600 font-mono ml-auto">+{factor.value.toFixed(4)}</span>
+                <span className="text-red-600 font-mono ml-auto">+{(factor.value * 100).toFixed(1)}%</span>
               </li>
             ))}
           </ul>
@@ -137,7 +137,7 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
                 <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
                 <strong>{featureLabels[factor.rawFeature] || factor.rawFeature}</strong>
                 <span className="text-gray-600">: {featureDescriptions[factor.rawFeature]?.protective || 'Decreases CVD risk'}</span>
-                <span className="text-blue-600 font-mono ml-auto">{factor.value.toFixed(4)}</span>
+                <span className="text-blue-600 font-mono ml-auto">{(factor.value * 100).toFixed(1)}%</span>
               </li>
             ))}
           </ul>
@@ -152,7 +152,7 @@ export default function ExplanationPanel({ shapImportance }: ExplanationPanelPro
             <>
               <strong>{featureLabels[topFactor.rawFeature] || topFactor.rawFeature}</strong> 
               {' '}is the most significant contributor to this patient's CVD risk 
-              ({topFactor.value > 0 ? 'increasing' : 'decreasing'} risk by {Math.abs(topFactor.value).toFixed(4)} SHAP units).
+              ({topFactor.value > 0 ? 'increasing' : 'decreasing'} absolute risk by {(Math.abs(topFactor.value) * 100).toFixed(1)}%.
               {topFactor.value > 0 
                 ? ' Consider addressing this modifiable risk factor through lifestyle changes or medical management.' 
                 : ' This protective factor should be maintained.'}
