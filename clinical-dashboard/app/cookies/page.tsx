@@ -205,6 +205,8 @@ export default function CookiePolicyPage() {
             <p className="text-stone">
               <strong>Praveit Suhas</strong> (Developer, 2023-2026)
               <br />
+              Email: <a href="mailto:praveitgs@gmail.com" className="text-gold hover:text-gold-muted transition-colors">praveitgs@gmail.com</a>
+              <br />
               Project URL: https://clinical-dashboard-woad.vercel.app/
             </p>
           </section>
