@@ -1,0 +1,374 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Luxury Design Tokens ─── */
+:root {
+  /* Primary palette — 60/30/10 rule */
+  --ivory: #f5f0e8;
+  --ivory-warm: #f0ead8;
+  --champagne: #e8e0d0;
+  --champagne-light: #ede6d8;
+  --sand: #d8cfc0;
+  --charcoal: #1a1a1a;
+  --charcoal-soft: #2a2a28;
+  --stone: #6b6560;
+  --stone-light: #8a857e;
+  --gold: #b8965a;
+  --gold-light: #d4b87a;
+  --gold-muted: #a08548;
+
+  /* Semantic colors — muted, sophisticated */
+  --risk-low: #4a6741;
+  --risk-low-bg: #f0f2ec;
+  --risk-moderate: #8b7234;
+  --risk-moderate-bg: #f5f0e4;
+  --risk-high: #7a3b3b;
+  --risk-high-bg: #f4ece8;
+  --protective: #3d5a6e;
+  --protective-bg: #edf0f2;
+
+  /* Surface & glass */
+  --glass-bg: rgba(245, 240, 232, 0.72);
+  --glass-border: rgba(200, 192, 176, 0.4);
+  --glass-blur: 20px;
+
+  /* Spacing rhythm */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+/* ─── Base Reset ─── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--ivory);
+  color: var(--charcoal);
+  font-family: 'Jost', 'Futura', 'Helvetica Neue', 'Helvetica', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── Typography System ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Jost', 'Futura', 'Helvetica Neue', 'Helvetica', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+}
+
+p, span, label, input, select, button, li, td, th {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Dot Grid Background ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(184, 150, 90, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ─── Radial Orbs (ambient glow) ─── */
+body::after {
+  content: '';
+  position: fixed;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(184, 150, 90, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-bottom {
+  position: fixed;
+  bottom: -15%;
+  left: -8%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(184, 150, 90, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Liquid Glass Card ─── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(184, 150, 90, 0.3);
+}
+
+.glass-card-subtle {
+  background: rgba(245, 240, 232, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 192, 176, 0.3);
+  border-radius: var(--radius-md);
+}
+
+/* ─── Skeleton Loader ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--champagne-light) 25%,
+    var(--champagne) 50%,
+    var(--champagne-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Form Controls ─── */
+input[type="number"],
+select {
+  background: rgba(245, 240, 232, 0.6);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--charcoal);
+  transition: all 0.25s ease;
+  outline: none;
+  width: 100%;
+}
+
+input[type="number"]:hover,
+select:hover {
+  border-color: var(--stone-light);
+}
+
+input[type="number"]:focus,
+select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184, 150, 90, 0.15);
+}
+
+/* ─── Focus-Visible (Keyboard Navigation) ─── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Remove default outline for mouse clicks */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Skip to Content (Accessibility) ─── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: var(--charcoal);
+  color: var(--ivory);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+/* ─── Buttons ─── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--charcoal);
+  color: var(--ivory);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  background: var(--charcoal-soft);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Animated Arrow ─── */
+.arrow-right {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.group:hover .arrow-right,
+.btn-primary:hover .arrow-right {
+  transform: translateX(4px);
+}
+
+/* ─── Scrollbar Styling ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sand);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stone-light);
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(184, 150, 90, 0.2);
+  color: var(--charcoal);
+}
+
+/* ─── Utility Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-fade-in-delay-1 {
+  animation: fadeIn 0.5s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fadeIn 0.5s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-3 {
+  animation: fadeIn 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+/* ─── Loading Spinner (CSS-only, replaces Lucide Loader2) ─── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(245, 240, 232, 0.3);
+  border-top-color: var(--ivory);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ─── Recharts Overrides ─── */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--champagne) !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ─── Legal Page Styles ─── */
+.legal-content h2 {
+  font-size: 1.375rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--charcoal);
+}
+
+.legal-content h3 {
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--charcoal-soft);
+}
+
+.legal-content p {
+  margin-bottom: 1rem;
+  color: var(--stone);
+  line-height: 1.7;
+}
+
+.legal-content ul {
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+  color: var(--stone);
+}
+
+.legal-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="https://www.xml-sitemaps.com/css/sitemap.css"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+       <loc>https://clinical-dashboard-woad.vercel.app/</loc>
+       <lastmod>2026-09-20T03:19:00+00:00</lastmod>
+       <priority>1.0000</priority>
+  </url>
+
+  <url>
+       <loc>https://clinical-dashboard-woad.vercel.app/privacy</loc>
+       <lastmod>2026-09-20T03:19:00+00:00</lastmod>
+       <priority>0.5000</priority>
+  </url>
+
+  <url>
+       <loc>https://clinical-dashboard-woad.vercel.app/terms</loc>
+       <lastmod>2026-09-20T03:19:00+00:00</lastmod>
+       <priority>0.5000</priority>
+  </url>
+
+  <url>
+       <loc>https://clinical-dashboard-woad.vercel.app/cookies</loc>
+       <lastmod>2026-09-20T03:19:00+00:00</lastmod>
+       <priority>0.5000</priority>
+  </url>
+
+</urlset>
